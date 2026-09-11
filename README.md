@@ -8,14 +8,14 @@ Kevin Carrillo, Tomás Rangel, Luna Pinilla, Luis Fernando Rodriguez, David Pasc
 Proyecto-final-econometria-basica/
 README.md
 Encuesta/
-diseno_preguntas.md
+  diseno_preguntas.md
 Data/
-datos_crudos.csv
-datos_limpios.csv
+  datos_crudos.csv
+  datos_limpios.csv
 Scripts/
-limpieza_datos.R
+  limpieza_datos.R
 Shiny_App/
-app.R
+  app.R
 Reporte/
-reporte_hallazgos.pdf
+  reporte_hallazgos.pdf
 ```
