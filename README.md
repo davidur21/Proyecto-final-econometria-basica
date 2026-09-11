@@ -4,7 +4,7 @@ Proyecto final del curso Econometría Básica 2026-II — Grupo A2: confianza in
 Kevin Carrillo, Tomás Rangel, Luna Pinilla, Luis Fernando Rodriguez, David Pascagaza Rodriguez
 
 ## Estructura del Repositorio
-´´´
+```
 Proyecto-final-econometria-basica/
 README.md
 Encuesta/
@@ -18,4 +18,4 @@ Shiny_App/
 app.R
 Reporte/
 reporte_hallazgos.pdf
-´´´
+```
