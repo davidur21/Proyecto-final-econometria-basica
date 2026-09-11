@@ -4,6 +4,7 @@ Proyecto final del curso Econometría Básica 2026-II — Grupo A2: confianza in
 Kevin Carrillo, Tomás Rangel, Luna Pinilla, Luis Fernando Rodriguez, David Pascagaza Rodriguez
 
 ## Estructura del Repositorio
+El repositorio está organizado por etapa del proyecto: Encuesta/ contiene el diseño del cuestionario, Data/ separa los datos crudos de los ya procesados, Scripts/ documenta la limpieza de datos, Shiny_App/ tiene el código del tablero interactivo, y Reporte/ el análisis final de hallazgos.
 ```
 Proyecto-final-econometria-basica/
 README.md
