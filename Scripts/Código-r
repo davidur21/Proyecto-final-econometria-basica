@@ -1,0 +1,477 @@
+# ==========================================================
+# Tablero Shiny - Grupo A2: Confianza institucional
+# Econometría Básica 2026-II
+# Versión con shinydashboard + plotly + filtros avanzados
+# ==========================================================
+
+library(shiny)
+library(shinydashboard)
+library(shinyWidgets)
+library(shinyjs)
+library(tidyverse)
+library(DT)
+library(plotly)
+library(scales)
+
+
+# ---------- 1. CARGA Y LIMPIEZA DE DATOS ----------
+datos <- read_csv("datos_limpios.csv") %>%
+  mutate(
+    edad = as.numeric(edad),
+    monto_donacion = as.numeric(gsub("[^0-9.]", "", monto_donacion)),
+    confianza_campana = as.numeric(confianza_campana),
+    genero = str_to_title(genero),
+    vinculo_universidad = str_to_title(vinculo_universidad),
+    ha_donado = str_to_title(ha_donado),
+    frecuencia_donacion = str_to_title(frecuencia_donacion),
+    causa_donacion = str_to_title(causa_donacion),
+    donaria = str_to_title(donaria),
+    compartiria_campana = str_to_title(compartiria_campana),
+    experiencia_emergencia = str_to_title(experiencia_emergencia),
+    capacidad_institucion = str_to_title(capacidad_institucion),
+    liderazgo_institucion = str_to_title(liderazgo_institucion),
+    prob_llegada_recursos = factor(prob_llegada_recursos,
+                                   levels = c("0 - 20", "20 - 40", "40 - 60", "60 - 80", "80 - 100"))
+  )
+
+cols_confianza <- c("confianza_alcaldias", "confianza_gobierno", "confianza_ong",
+                    "confianza_universidades", "confianza_religiosa", "confianza_empresas")
+
+etiquetas_instituciones <- c(
+  confianza_alcaldias      = "Alcaldía",
+  confianza_gobierno       = "Gob. Nacional",
+  confianza_ong            = "ONG",
+  confianza_universidades  = "Universidad",
+  confianza_religiosa      = "Org. Religiosa",
+  confianza_empresas       = "Empresa Privada"
+)
+
+datos_largo <- datos %>%
+  pivot_longer(cols = all_of(cols_confianza),
+               names_to = "institucion", values_to = "confianza") %>%
+  mutate(institucion = recode(institucion, !!!etiquetas_instituciones))
+
+paleta <- c("#2C3E50", "#E74C3C", "#3498DB", "#27AE60", "#F39C12", "#9B59B6")
+
+# ---------- 2. UI ----------
+ui <- dashboardPage(
+  skin = "blue",
+  
+  dashboardHeader(title = "Confianza Institucional — A2", titleWidth = 320),
+  
+  dashboardSidebar(
+    width = 320,
+    sidebarMenu(
+      id = "menu",
+      menuItem("Resumen general", tabName = "resumen", icon = icon("gauge-high")),
+      menuItem("Confianza institucional", tabName = "confianza", icon = icon("landmark")),
+      menuItem("Capacidad y liderazgo", tabName = "liderazgo", icon = icon("people-group")),
+      menuItem("Experiencia y percepción", tabName = "experiencia", icon = icon("magnifying-glass-chart")),
+      menuItem("Disposición a donar", tabName = "donacion", icon = icon("hand-holding-heart")),
+      menuItem("Explorador de datos", tabName = "explorador", icon = icon("table"))
+    ),
+    hr(style = "border-color: #4b6584;"),
+    h4(" Filtros", style = "padding-left: 15px; color: white;"),
+    
+    sliderInput("f_edad", "Rango de edad:",
+                min = 15, max = 75, value = c(15, 75)),
+    
+    pickerInput("f_genero", "Género:",
+                choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `live-search` = TRUE)),
+    
+    pickerInput("f_vinculo", "Vínculo con la universidad:",
+                choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE)),
+    
+    pickerInput("f_ha_donado", "Experiencia previa de donación:",
+                choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE)),
+    
+    pickerInput("f_causa", "Causa donada previamente:",
+                choices = NULL, multiple = TRUE,
+                options = list(`actions-box` = TRUE, `live-search` = TRUE)),
+    
+    prettyCheckboxGroup("f_donaria", "¿Donaría a la campaña?",
+                        choices = c("Si", "No"), selected = c("Si", "No"),
+                        inline = TRUE, status = "primary"),
+    
+    prettyCheckboxGroup("f_experiencia", "¿Experiencia previa con emergencias?",
+                        choices = c("Si", "No"), selected = c("Si", "No"),
+                        inline = TRUE, status = "primary"),
+    
+    sliderInput("f_confianza_campana", "Confianza en la campaña (0-10):",
+                min = 0, max = 10, value = c(0, 10)),
+    
+    sliderInput("f_monto", "Monto dispuesto a donar (COP):",
+                min = 0, max = 50000, value = c(0, 50000), step = 5000,
+                pre = "$"),
+    
+    br(),
+    actionButton("reset", "Restablecer filtros", icon = icon("rotate-left"),
+                 style = "margin-left: 15px; background-color:#e74c3c; color:white; border:none;"),
+    br(), br()
+  ),
+  
+  dashboardBody(
+    tags$head(tags$style(HTML("
+      .content-wrapper { background-color: #f4f6f9; }
+      .box { border-top: 3px solid #2C3E50; border-radius: 8px; }
+      .small-box { border-radius: 10px; }
+      .skin-blue .main-header .logo { font-weight: bold; }
+    "))),
+    
+    tabItems(
+      
+      # ---------------- TAB 1: RESUMEN ----------------
+      tabItem(tabName = "resumen",
+              fluidRow(
+                valueBoxOutput("kpi_n", width = 3),
+                valueBoxOutput("kpi_donaria", width = 3),
+                valueBoxOutput("kpi_monto", width = 3),
+                valueBoxOutput("kpi_confianza", width = 3)
+              ),
+              fluidRow(
+                box(title = "Distribución por edad y género", status = "primary",
+                    solidHeader = TRUE, width = 6, plotlyOutput("hist_edad")),
+                box(title = "¿Donaría a la campaña?", status = "primary",
+                    solidHeader = TRUE, width = 6, plotlyOutput("donut_donaria"))
+              ),
+              fluidRow(
+                box(title = "Vínculo con la universidad", status = "info",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_vinculo")),
+                box(title = "Institución más confiable en promedio", status = "info",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_ranking_confianza"))
+              )
+      ),
+      
+      # ---------------- TAB 2: CONFIANZA INSTITUCIONAL ----------------
+      tabItem(tabName = "confianza",
+              fluidRow(
+                box(title = "Distribución de confianza por institución", status = "primary",
+                    solidHeader = TRUE, width = 12,
+                    pickerInput("f_instituciones", "Instituciones a comparar:",
+                                choices = NULL, multiple = TRUE,
+                                options = list(`actions-box` = TRUE)),
+                    plotlyOutput("box_confianza", height = "420px"))
+              ),
+              fluidRow(
+                box(title = "Correlación entre niveles de confianza", status = "warning",
+                    solidHeader = TRUE, width = 6, plotlyOutput("heatmap_corr")),
+                box(title = "Ranking promedio de confianza", status = "warning",
+                    solidHeader = TRUE, width = 6, DTOutput("tabla_confianza"))
+              )
+      ),
+      
+      # ---------------- TAB 3: CAPACIDAD Y LIDERAZGO ----------------
+      tabItem(tabName = "liderazgo",
+              fluidRow(
+                box(title = "¿Quién tiene mayor capacidad técnica/logística?", status = "success",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_capacidad")),
+                box(title = "¿Quién debería liderar la coordinación?", status = "success",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_liderazgo"))
+              ),
+              fluidRow(
+                box(title = "Confianza vs. capacidad percibida (¿coinciden?)", status = "success",
+                    solidHeader = TRUE, width = 12, plotlyOutput("combo_confianza_capacidad"))
+              )
+      ),
+      
+      # ---------------- TAB 4: EXPERIENCIA Y PERCEPCIÓN ----------------
+      tabItem(tabName = "experiencia",
+              fluidRow(
+                box(title = "Confianza institucional según experiencia previa", status = "info",
+                    solidHeader = TRUE, width = 12, plotlyOutput("box_experiencia", height = "450px"))
+              ),
+              fluidRow(
+                box(title = "Confianza en la campaña vs. probabilidad de que lleguen los recursos",
+                    status = "info", solidHeader = TRUE, width = 12,
+                    plotlyOutput("scatter_confianza_prob"))
+              )
+      ),
+      
+      # ---------------- TAB 5: DISPOSICIÓN A DONAR ----------------
+      tabItem(tabName = "donacion",
+              fluidRow(
+                box(title = "Distribución del monto dispuesto a donar", status = "danger",
+                    solidHeader = TRUE, width = 6, plotlyOutput("hist_monto")),
+                box(title = "Monto vs. confianza en la campaña", status = "danger",
+                    solidHeader = TRUE, width = 6, plotlyOutput("scatter_monto_confianza"))
+              ),
+              fluidRow(
+                box(title = "¿Compartiría la campaña?", status = "danger",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_compartiria")),
+                box(title = "Frecuencia habitual de donación", status = "danger",
+                    solidHeader = TRUE, width = 6, plotlyOutput("bar_frecuencia"))
+              )
+      ),
+      
+      # ---------------- TAB 6: EXPLORADOR DE DATOS ----------------
+      tabItem(tabName = "explorador",
+              fluidRow(
+                box(title = "Base de datos filtrada", status = "primary", solidHeader = TRUE,
+                    width = 12,
+                    downloadButton("descargar_csv", "Descargar datos filtrados (.csv)",
+                                   style = "margin-bottom: 15px; background-color:#2C3E50; color:white;"),
+                    DTOutput("tabla_completa"))
+              )
+      )
+    )
+  )
+)
+
+# ---------- 3. SERVER ----------
+server <- function(input, output, session) {
+  
+  # Poblar filtros dinámicamente con los valores reales de la base
+  observe({
+    updatePickerInput(session, "f_genero", choices = unique(datos$genero), selected = unique(datos$genero))
+    updatePickerInput(session, "f_vinculo", choices = unique(datos$vinculo_universidad), selected = unique(datos$vinculo_universidad))
+    updatePickerInput(session, "f_ha_donado", choices = unique(datos$ha_donado), selected = unique(datos$ha_donado))
+    updatePickerInput(session, "f_causa", choices = unique(datos$causa_donacion), selected = unique(datos$causa_donacion))
+    updatePickerInput(session, "f_instituciones", choices = unique(datos_largo$institucion), selected = unique(datos_largo$institucion))
+  })
+  
+  observeEvent(input$reset, {
+    updateSliderInput(session, "f_edad", value = c(15, 75))
+    updatePickerInput(session, "f_genero", selected = unique(datos$genero))
+    updatePickerInput(session, "f_vinculo", selected = unique(datos$vinculo_universidad))
+    updatePickerInput(session, "f_ha_donado", selected = unique(datos$ha_donado))
+    updatePickerInput(session, "f_causa", selected = unique(datos$causa_donacion))
+    updatePrettyCheckboxGroup(session, "f_donaria", selected = c("Si", "No"))
+    updatePrettyCheckboxGroup(session, "f_experiencia", selected = c("Si", "No"))
+    updateSliderInput(session, "f_confianza_campana", value = c(0, 10))
+    updateSliderInput(session, "f_monto", value = c(0, 50000))
+  })
+  
+  # ---------- Datos filtrados (ancho) ----------
+  datos_filtrados <- reactive({
+    req(input$f_genero, input$f_vinculo, input$f_ha_donado, input$f_causa)
+    datos %>%
+      filter(
+        edad >= input$f_edad[1], edad <= input$f_edad[2],
+        genero %in% input$f_genero,
+        vinculo_universidad %in% input$f_vinculo,
+        ha_donado %in% input$f_ha_donado,
+        causa_donacion %in% input$f_causa,
+        donaria %in% input$f_donaria,
+        experiencia_emergencia %in% input$f_experiencia,
+        confianza_campana >= input$f_confianza_campana[1],
+        confianza_campana <= input$f_confianza_campana[2],
+        monto_donacion >= input$f_monto[1], monto_donacion <= input$f_monto[2]
+      )
+  })
+  
+  # ---------- Datos filtrados (largo, para instituciones) ----------
+  datos_largo_filtrados <- reactive({
+    req(input$f_instituciones)
+    ids <- datos_filtrados() %>% pull(fecha_hora)
+    datos_largo %>%
+      filter(fecha_hora %in% ids, institucion %in% input$f_instituciones)
+  })
+  
+  # ================= TAB 1: RESUMEN =================
+  output$kpi_n <- renderValueBox({
+    valueBox(nrow(datos_filtrados()), "Respuestas filtradas", icon = icon("users"), color = "blue")
+  })
+  
+  output$kpi_donaria <- renderValueBox({
+    pct <- datos_filtrados() %>% summarise(p = mean(donaria == "Si", na.rm = TRUE) * 100) %>% pull(p)
+    valueBox(paste0(round(pct, 0), "%"), "Dispuestos a donar", icon = icon("hand-holding-heart"), color = "green")
+  })
+  
+  output$kpi_monto <- renderValueBox({
+    m <- datos_filtrados() %>% filter(donaria == "Si") %>% summarise(m = mean(monto_donacion, na.rm = TRUE)) %>% pull(m)
+    valueBox(dollar(round(m, 0), prefix = "$"), "Monto promedio ofrecido", icon = icon("coins"), color = "yellow")
+  })
+  
+  output$kpi_confianza <- renderValueBox({
+    prom <- datos_largo_filtrados() %>% summarise(m = mean(confianza, na.rm = TRUE)) %>% pull(m)
+    valueBox(round(prom, 1), "Confianza institucional promedio (0-10)", icon = icon("landmark"), color = "purple")
+  })
+  
+  output$hist_edad <- renderPlotly({
+    p <- datos_filtrados() %>%
+      ggplot(aes(x = edad, fill = genero)) +
+      geom_histogram(binwidth = 2, color = "white") +
+      scale_fill_manual(values = paleta) +
+      labs(x = "Edad", y = "N° de personas", fill = "Género") +
+      theme_minimal()
+    ggplotly(p)
+  })
+  
+  output$donut_donaria <- renderPlotly({
+    df <- datos_filtrados() %>% count(donaria)
+    plot_ly(df, labels = ~donaria, values = ~n, type = "pie", hole = 0.55,
+            marker = list(colors = c("#27AE60", "#E74C3C"))) %>%
+      layout(showlegend = TRUE)
+  })
+  
+  output$bar_vinculo <- renderPlotly({
+    p <- datos_filtrados() %>% count(vinculo_universidad) %>%
+      ggplot(aes(x = reorder(vinculo_universidad, n), y = n, fill = vinculo_universidad)) +
+      geom_col() + coord_flip() +
+      scale_fill_manual(values = paleta) +
+      labs(x = NULL, y = "N° de respuestas") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$bar_ranking_confianza <- renderPlotly({
+    p <- datos_largo_filtrados() %>%
+      group_by(institucion) %>% summarise(prom = mean(confianza, na.rm = TRUE)) %>%
+      ggplot(aes(x = reorder(institucion, prom), y = prom, fill = prom)) +
+      geom_col() + coord_flip() +
+      scale_fill_gradient(low = "#F39C12", high = "#2C3E50") +
+      labs(x = NULL, y = "Confianza promedio (0-10)") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  # ================= TAB 2: CONFIANZA INSTITUCIONAL =================
+  output$box_confianza <- renderPlotly({
+    df <- datos_largo_filtrados()
+    validate(need(nrow(df) > 0, "No hay datos con los filtros actuales. Prueba ampliar el rango de edad, monto o confianza, o selecciona más opciones en los filtros de la izquierda."))
+    p <- df %>%
+      ggplot(aes(x = institucion, y = confianza, fill = institucion)) +
+      geom_boxplot() +
+      scale_fill_manual(values = paleta) +
+      labs(x = NULL, y = "Confianza (0-10)") +
+      theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$tabla_confianza <- renderDT({
+    datos_largo_filtrados() %>%
+      group_by(institucion) %>%
+      summarise(n = n(),
+                promedio = round(mean(confianza, na.rm = TRUE), 1),
+                desviacion = round(sd(confianza, na.rm = TRUE), 1)) %>%
+      arrange(desc(promedio)) %>%
+      datatable(options = list(dom = 't', pageLength = 6), rownames = FALSE)
+  })
+  
+  output$heatmap_corr <- renderPlotly({
+    mat <- datos_filtrados() %>% select(all_of(cols_confianza)) %>%
+      cor(use = "complete.obs")
+    colnames(mat) <- etiquetas_instituciones[colnames(mat)]
+    rownames(mat) <- etiquetas_instituciones[rownames(mat)]
+    plot_ly(x = colnames(mat), y = rownames(mat), z = mat, type = "heatmap",
+            colors = colorRamp(c("#F4D03F", "#2C3E50"))) %>%
+      layout(xaxis = list(title = ""), yaxis = list(title = ""))
+  })
+  
+  # ================= TAB 3: CAPACIDAD Y LIDERAZGO =================
+  output$bar_capacidad <- renderPlotly({
+    p <- datos_filtrados() %>% count(capacidad_institucion) %>%
+      ggplot(aes(x = reorder(capacidad_institucion, n), y = n, fill = capacidad_institucion)) +
+      geom_col() + coord_flip() + scale_fill_manual(values = paleta) +
+      labs(x = NULL, y = "N° de respuestas") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$bar_liderazgo <- renderPlotly({
+    p <- datos_filtrados() %>% count(liderazgo_institucion) %>%
+      ggplot(aes(x = reorder(liderazgo_institucion, n), y = n, fill = liderazgo_institucion)) +
+      geom_col() + coord_flip() + scale_fill_manual(values = rev(paleta)) +
+      labs(x = NULL, y = "N° de respuestas") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$combo_confianza_capacidad <- renderPlotly({
+    validate(need(nrow(datos_filtrados()) > 0, "No hay datos con los filtros actuales."))
+    ranking_confianza <- datos_largo_filtrados() %>%
+      group_by(institucion) %>% summarise(confianza_prom = mean(confianza, na.rm = TRUE))
+    
+    ranking_capacidad <- datos_filtrados() %>% count(capacidad_institucion) %>%
+      rename(institucion = capacidad_institucion, n_capacidad = n)
+    
+    comb <- full_join(ranking_confianza, ranking_capacidad, by = "institucion") %>%
+      mutate(n_capacidad = replace_na(n_capacidad, 0))
+    
+    p <- comb %>%
+      ggplot(aes(x = confianza_prom, y = n_capacidad, label = institucion)) +
+      geom_point(aes(color = institucion), size = 5) +
+      scale_color_manual(values = paleta) +
+      labs(x = "Confianza promedio (0-10)", y = "N° de veces elegida como más capaz") +
+      theme_minimal()
+    ggplotly(p)
+  })
+  
+  # ================= TAB 4: EXPERIENCIA Y PERCEPCIÓN =================
+  output$box_experiencia <- renderPlotly({
+    df <- datos_largo_filtrados()
+    validate(need(nrow(df) > 0, "No hay datos con los filtros actuales. Prueba ampliar el rango de edad, monto o confianza, o selecciona más opciones en los filtros de la izquierda."))
+    validate(need(n_distinct(df$institucion) > 0 && n_distinct(df$experiencia_emergencia) > 0,
+                  "No hay suficiente variación en los datos filtrados para mostrar esta comparación."))
+    p <- df %>%
+      ggplot(aes(x = experiencia_emergencia, y = confianza, fill = experiencia_emergencia)) +
+      geom_boxplot() +
+      facet_wrap(~institucion) +
+      scale_fill_manual(values = c("#3498DB", "#E74C3C")) +
+      labs(x = "¿Experiencia previa con emergencias?", y = "Confianza (0-10)") +
+      theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$scatter_confianza_prob <- renderPlotly({
+    p <- datos_filtrados() %>%
+      ggplot(aes(x = prob_llegada_recursos, y = confianza_campana, color = donaria)) +
+      geom_jitter(width = 0.15, height = 0.2, size = 2.5, alpha = 0.7) +
+      scale_color_manual(values = c("Si" = "#27AE60", "No" = "#E74C3C")) +
+      labs(x = "Probabilidad percibida de que lleguen los recursos", y = "Confianza en la campaña (0-10)",
+           color = "¿Donaría?") +
+      theme_minimal()
+    ggplotly(p)
+  })
+  
+  # ================= TAB 5: DISPOSICIÓN A DONAR =================
+  output$hist_monto <- renderPlotly({
+    p <- datos_filtrados() %>% filter(donaria == "Si") %>%
+      ggplot(aes(x = monto_donacion)) +
+      geom_histogram(binwidth = 5000, fill = "#27AE60", color = "white") +
+      labs(x = "Monto (COP)", y = "N° de personas") +
+      scale_x_continuous(labels = dollar_format(prefix = "$")) +
+      theme_minimal()
+    ggplotly(p)
+  })
+  
+  output$scatter_monto_confianza <- renderPlotly({
+    p <- datos_filtrados() %>% filter(donaria == "Si") %>%
+      ggplot(aes(x = confianza_campana, y = monto_donacion, color = genero)) +
+      geom_jitter(width = 0.2, size = 2.5, alpha = 0.75) +
+      geom_smooth(method = "lm", se = FALSE, color = "#2C3E50", linetype = "dashed") +
+      scale_color_manual(values = paleta) +
+      scale_y_continuous(labels = dollar_format(prefix = "$")) +
+      labs(x = "Confianza en la campaña (0-10)", y = "Monto donado (COP)", color = "Género") +
+      theme_minimal()
+    ggplotly(p)
+  })
+  
+  output$bar_compartiria <- renderPlotly({
+    p <- datos_filtrados() %>% count(compartiria_campana) %>%
+      ggplot(aes(x = compartiria_campana, y = n, fill = compartiria_campana)) +
+      geom_col() + scale_fill_manual(values = paleta) +
+      labs(x = NULL, y = "N° de respuestas") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  output$bar_frecuencia <- renderPlotly({
+    p <- datos_filtrados() %>% count(frecuencia_donacion) %>%
+      ggplot(aes(x = reorder(frecuencia_donacion, n), y = n, fill = frecuencia_donacion)) +
+      geom_col() + coord_flip() + scale_fill_manual(values = paleta) +
+      labs(x = NULL, y = "N° de respuestas") + theme_minimal() + theme(legend.position = "none")
+    ggplotly(p)
+  })
+  
+  # ================= TAB 6: EXPLORADOR =================
+  output$tabla_completa <- renderDT({
+    datatable(datos_filtrados(), options = list(scrollX = TRUE, pageLength = 10))
+  })
+  
+  output$descargar_csv <- downloadHandler(
+    filename = function() paste0("datos_filtrados_A2_", Sys.Date(), ".csv"),
+    content = function(file) write_csv(datos_filtrados(), file)
+  )
+}
+
+# ---------- 4. EJECUTAR ----------
+shinyApp(ui = ui, server = server)
