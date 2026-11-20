@@ -6,8 +6,8 @@
 # y la paleta de colores tipo "flat UI": azul pizarra, rojo, azul, verde,
 # naranja y morado.
 #
-# Para ejecutarlo: coloque este archivo (app.R) y "datos_encuesta.csv" en la
-# misma carpeta, ábralo en RStudio y presione "Run App".
+# Para ejecutarlo: abra este archivo en RStudio (lee ../Data/datos_encuesta.csv)
+# y presione "Run App".
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ library(stringr)
 # se hace en memoria, dentro de este script.
 # ------------------------------------------------------------------------------
 
-datos_raw <- read.csv("datos_encuesta.csv", stringsAsFactors = FALSE, encoding = "UTF-8")
+datos_raw <- read.csv(file.path("..", "Data", "datos_encuesta.csv"), stringsAsFactors = FALSE, encoding = "UTF-8")
 
 datos <- datos_raw %>%
   mutate(
