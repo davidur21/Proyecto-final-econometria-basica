@@ -6,7 +6,7 @@ Primera etapa del proyecto: encuesta sobre confianza en distintas instituciones 
 |---|---|---|
 | `Data/` | `datos_encuesta_sucia.csv` | Export directo de Google Sheets, sin modificar |
 | | `datos_encuesta.csv` | Base procesada (nombres estandarizados, tipos corregidos) |
-| `Encuesta/` | `Encuesta_A2_Confianza_Institucional.md` | Diseño del cuestionario y uso econométrico de cada pregunta · [formulario](https://forms.gle/gT5WKYUj8LBdzNwAA) |
+| `Encuesta/` | `Encuesta_A2_Confianza_Institucional.md` | Diseño del cuestionario y uso econométrico de cada pregunta - [formulario](https://forms.gle/gT5WKYUj8LBdzNwAA) |
 | `Shiny_App/` | `app.R` | Tablero interactivo en Shiny |
 | `Reporte/` | `Informe_Entrega_1_Econometría.pdf` | Reporte de hallazgos preliminares |
 

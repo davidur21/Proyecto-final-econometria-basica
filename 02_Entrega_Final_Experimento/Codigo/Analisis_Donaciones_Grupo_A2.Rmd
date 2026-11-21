@@ -1,6 +1,6 @@
 ---
 title: "Confianza institucional y donaciones"
-subtitle: "Econometría Básica 2026-II · Grupo A2"
+subtitle: "Econometría Básica 2026-II - Grupo A2"
 author: "Kevin Carrillo, Tomás Rangel, Luna Pinilla, Luis Fernando Rodríguez y David Pascagaza Rodríguez"
 date: "`r format(Sys.Date(), '%d/%m/%Y')`"
 output:
@@ -145,7 +145,7 @@ g1 <- ggplot(donantes, aes(institucion, monto, fill = institucion)) +
   scale_color_manual(values = colores) +
   coord_cartesian(ylim = c(4000, 5000000)) +
   labs(title = "¿Cuánto donarían según quién maneja la plata?",
-       subtitle = "Monto que donaría cada persona · solo quienes donan más de $0",
+       subtitle = "Monto que donaría cada persona - solo quienes donan más de $0",
        x = NULL, y = "Monto (COP, escala logarítmica)",
        caption = paste0("Rombo blanco = media. Línea = mediana. Cada punto es una persona. ",
                         sum(donantes$monto < 4000), " montos menores a $4.000 no se ven en el eje, pero sí entran en los cálculos.")) +
@@ -196,7 +196,7 @@ g3 <- ggplot(conf_largo, aes(institucion, media, color = institucion)) +
   scale_color_manual(values = colores) +
   scale_y_continuous(limits = c(4, 8.5)) +
   labs(title = "¿En quién confían más?",
-       subtitle = "Promedio e intervalo de confianza del 95 % · solo donantes",
+       subtitle = "Promedio e intervalo de confianza del 95 % - solo donantes",
        x = NULL, y = "Promedio") +
   tema_poster + theme(legend.position = "none", axis.text.x = element_text(size = 11))
 
@@ -221,7 +221,7 @@ g4 <- ggplot(donantes_g, aes(institucion, monto, fill = grupo_est)) +
   scale_fill_manual(values = c("No estudiantes" = "#B7C3CF", "Estudiantes" = "#17283C")) +
   scale_color_manual(values = c("No estudiantes" = "#6B7C8C", "Estudiantes" = "#17283C")) +
   labs(title = "¿Los estudiantes donan distinto?",
-       subtitle = "Monto donado por institución y condición de estudiante · solo donantes",
+       subtitle = "Monto donado por institución y condición de estudiante - solo donantes",
        x = NULL, y = "Monto (COP, escala logarítmica)") +
   tema_poster
 
@@ -267,14 +267,14 @@ g6 <- ggplot(genero_df, aes(genero, monto, fill = genero)) +
   geom_violin(alpha = 0.35, color = NA, trim = FALSE) +
   geom_boxplot(width = 0.22, alpha = 0.95, outlier.shape = NA, color = "#17283C") +
   geom_jitter(aes(color = genero), width = 0.08, size = 2, alpha = 0.4) +
-  geom_text(data = etq_gen, aes(y = 3500000, label = paste0("n = ", n, " · Mediana ", pesos(mediana))),
+  geom_text(data = etq_gen, aes(y = 3500000, label = paste0("n = ", n, " - Mediana ", pesos(mediana))),
             size = 4.6, fontface = "bold", color = "#17283C") +
   scale_y_log10(labels = pesos, breaks = c(10000, 50000, 100000, 500000, 2000000)) +
   coord_cartesian(ylim = c(4000, 5000000)) +
   scale_fill_manual(values = c("Hombre" = "#5B7FA6", "Mujer" = "#C2607A")) +
   scale_color_manual(values = c("Hombre" = "#5B7FA6", "Mujer" = "#C2607A")) +
   labs(title = "¿Quién dona más: mujeres u hombres?",
-       subtitle = "Distribución del monto donado · solo donantes",
+       subtitle = "Distribución del monto donado - solo donantes",
        x = NULL, y = "Monto (COP, escala logarítmica)") +
   tema_poster + theme(legend.position = "none")
 
@@ -306,7 +306,7 @@ bptest(m2)
 
 ```{r mco-tabla, results='asis'}
 stargazer(m1, m2, type = "html", se = list(ee_rob(m1), ee_rob(m2)),
-          title = "Monto donado (COP) · base: alcaldía · EE robustos HC1",
+          title = "Monto donado (COP) - base: alcaldía - EE robustos HC1",
           covariate.labels = c("U. pública", "U. privada", "Estudiante", "Edad", "Mujer", "Experiencia previa"),
           dep.var.labels = "Monto", digits = 0, omit.stat = c("f", "ser"))
 ```
@@ -326,7 +326,7 @@ m_conf <- lm(confianza ~ institucion + estudiante + edad + mujer + experiencia, 
 m_prob <- lm(prob_llegada ~ institucion + estudiante + edad + mujer + experiencia, data = donantes)
 
 stargazer(m_conf, m_prob, type = "html", se = list(ee_rob(m_conf), ee_rob(m_prob)),
-          title = "Confianza y probabilidad de que la ayuda llegue · base: alcaldía",
+          title = "Confianza y probabilidad de que la ayuda llegue - base: alcaldía",
           covariate.labels = c("U. pública", "U. privada", "Estudiante", "Edad", "Mujer", "Experiencia previa"),
           dep.var.labels = c("Confianza (0–10)", "Prob. llegada (0–100)"),
           digits = 2, omit.stat = c("f", "ser"))
@@ -344,7 +344,7 @@ m3 <- lm(monto ~ institucion * estudiante + edad + mujer + experiencia, data = d
 m4 <- lm(monto ~ institucion * experiencia + estudiante + edad + mujer, data = donantes)
 
 stargazer(m3, m4, type = "html", se = list(ee_rob(m3), ee_rob(m4)),
-          title = "Interacciones · base: alcaldía · EE robustos HC1",
+          title = "Interacciones - base: alcaldía - EE robustos HC1",
           dep.var.labels = "Monto", digits = 0, omit.stat = c("f", "ser"))
 ```
 
@@ -370,7 +370,7 @@ g_hombre <- lm(monto ~ institucion + estudiante + edad + experiencia, data = fil
 
 modelos_g <- list(g_est, g_noest, g_exp, g_noexp, g_mujer, g_hombre)
 stargazer(modelos_g, type = "html", se = lapply(modelos_g, ee_rob),
-          title = "Regresiones por grupos · base: alcaldía · EE robustos HC1",
+          title = "Regresiones por grupos - base: alcaldía - EE robustos HC1",
           column.labels = c("Estudiantes", "No estudiantes", "Con exp.", "Sin exp.", "Mujeres", "Hombres"),
           keep = "institucion", covariate.labels = c("U. pública", "U. privada"),
           dep.var.labels = "Monto", digits = 0, omit.stat = c("f", "ser"))
@@ -388,7 +388,7 @@ m3_z <- lm(monto_z ~ institucion * estudiante + edad_z + mujer + experiencia, da
 m4_z <- lm(monto_z ~ institucion * experiencia + estudiante + edad_z + mujer, data = donantes_z)
 
 stargazer(m2_z, m3_z, m4_z, type = "html", se = list(ee_rob(m2_z), ee_rob(m3_z), ee_rob(m4_z)),
-          title = "Monto estandarizado (desviaciones estándar) · base: alcaldía · EE robustos HC1",
+          title = "Monto estandarizado (desviaciones estándar) - base: alcaldía - EE robustos HC1",
           column.labels = c("Controles", "× Estudiante", "× Experiencia"),
           dep.var.labels = "Monto (z)", digits = 3, omit.stat = c("f", "ser"))
 ```
@@ -427,7 +427,7 @@ g7 <- ggplot(coefs, aes(est, reorder(termino, est), color = modelo)) +
                                 "Interacción estudiante" = "#2A8578")) +
   scale_shape_manual(values = c("p < 0,05" = 16, "No significativo" = 1)) +
   labs(title = "¿Qué dicen las regresiones?",
-       subtitle = "Coeficientes en desviaciones estándar del monto · base: alcaldía · IC 95 % robusto (HC1)",
+       subtitle = "Coeficientes en desviaciones estándar del monto - base: alcaldía - IC 95 % robusto (HC1)",
        x = "Efecto sobre el monto (desviaciones estándar)", y = NULL) +
   tema_poster + theme(axis.text.y = element_text(face = "bold", size = 12),
                       axis.text.x = element_text(face = "plain"),
