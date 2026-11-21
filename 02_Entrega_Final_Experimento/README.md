@@ -21,14 +21,14 @@ Experimento con encuesta (Google Forms, 27 de octubre – 12 de noviembre de 202
 
 | Variable | Tipo | Descripción |
 |---|---|---|
-| `institucion` | Factor | Alcaldía (base) · U. pública · U. privada |
+| `institucion` | Factor | Alcaldía (base) - U. pública - U. privada |
 | `monto` | COP | Monto que donaría la persona (0 si no donaría) |
 | `dona` | 0/1 | 1 si `monto` > 0 |
 | `confianza` | 0–10 | Confianza que le genera la campaña |
 | `prob_llegada` | 0–100 | Probabilidad percibida de que la ayuda llegue a las familias |
 | `estudiante` | 0/1 | 1 si es estudiante de pregrado o posgrado |
 | `edad` | Años | Edad cumplida |
-| `genero` | Texto | Mujer · Hombre · No binario u otro · Prefiero no responder |
+| `genero` | Texto | Mujer - Hombre - No binario u otro - Prefiero no responder |
 | `mujer` | 0/1 | 1 si se identifica como mujer |
 | `experiencia` | 0/1 | 1 si donó dinero, bienes o tiempo en los últimos 12 meses |
 

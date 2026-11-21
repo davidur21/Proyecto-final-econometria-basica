@@ -1,10 +1,10 @@
 # Confianza institucional y donaciones
 
-**Proyecto final · Econometría Básica 2026-II · Universidad del Rosario · Grupo A2**
+**Proyecto final - Econometría Básica 2026-II - Universidad del Rosario - Grupo A2**
 
 ¿Cambia la institución que administra una campaña de ayuda (alcaldía, universidad pública o universidad privada) cuánto dona la gente y cuánta confianza le genera? Para responderlo hicimos un experimento con encuesta: tres versiones de la misma campaña hipotética para 800 familias afectadas por una inundación, en las que solo cambia quién maneja la plata.
 
-**Integrantes:** Kevin Alexander Carrillo Garzón · David Steven Pascagaza Rodríguez · Luna Valentina Pinilla Malaver · Tomás Rangel Palacio · Luis Fernando Rodríguez Guevara
+**Integrantes:** Kevin Alexander Carrillo Garzón - David Steven Pascagaza Rodríguez - Luna Valentina Pinilla Malaver - Tomás Rangel Palacio - Luis Fernando Rodríguez Guevara
 
 ---
 
@@ -13,10 +13,10 @@
 | Entregable | Archivo |
 |---|---|
 | Póster (A3) | [`Poster_The_Econometrics_Times_A2.pdf`](02_Entrega_Final_Experimento/Documentos/Poster_The_Econometrics_Times_A2.pdf) |
-| Blog | [`Blog_Confianza_Institucional_A2.pdf`](02_Entrega_Final_Experimento/Documentos/Blog_Confianza_Institucional_A2.pdf) · [`.docx`](02_Entrega_Final_Experimento/Documentos/Blog_Confianza_Institucional_A2.docx) |
-| Informe | [`Informe_Final_Confianza_Institucional_A2.pdf`](02_Entrega_Final_Experimento/Documentos/Informe_Final_Confianza_Institucional_A2.pdf) · [`.docx`](02_Entrega_Final_Experimento/Documentos/Informe_Final_Confianza_Institucional_A2.docx) |
-| Código en R | [`Analisis_Donaciones_Grupo_A2.Rmd`](02_Entrega_Final_Experimento/Codigo/Analisis_Donaciones_Grupo_A2.Rmd) · [resultado `.html`](02_Entrega_Final_Experimento/Codigo/Analisis_Donaciones_Grupo_A2.html) |
-| Base de datos | [`Base_Datos_Entrega_Final.xlsx`](02_Entrega_Final_Experimento/Data/Base_Datos_Entrega_Final.xlsx) · [`.csv`](02_Entrega_Final_Experimento/Data/Base_Datos_Entrega_Final.csv) |
+| Blog | [`Blog_Confianza_Institucional_A2.pdf`](02_Entrega_Final_Experimento/Documentos/Blog_Confianza_Institucional_A2.pdf) - [`.docx`](02_Entrega_Final_Experimento/Documentos/Blog_Confianza_Institucional_A2.docx) |
+| Informe | [`Informe_Final_Confianza_Institucional_A2.pdf`](02_Entrega_Final_Experimento/Documentos/Informe_Final_Confianza_Institucional_A2.pdf) - [`.docx`](02_Entrega_Final_Experimento/Documentos/Informe_Final_Confianza_Institucional_A2.docx) |
+| Código en R | [`Analisis_Donaciones_Grupo_A2.Rmd`](02_Entrega_Final_Experimento/Codigo/Analisis_Donaciones_Grupo_A2.Rmd) - [resultado `.html`](02_Entrega_Final_Experimento/Codigo/Analisis_Donaciones_Grupo_A2.html) |
+| Base de datos | [`Base_Datos_Entrega_Final.xlsx`](02_Entrega_Final_Experimento/Data/Base_Datos_Entrega_Final.xlsx) - [`.csv`](02_Entrega_Final_Experimento/Data/Base_Datos_Entrega_Final.csv) |
 | Cuestionario | [`Cuestionario_Experimento.md`](02_Entrega_Final_Experimento/Encuesta/Cuestionario_Experimento.md) |
 
 ## Resultados principales
@@ -50,16 +50,16 @@ Todas las cifras del póster, el blog y el informe salen del mismo código en R 
 Proyecto-final-econometria-basica/
 ├── README.md
 ├── 01_Entrega_1_Encuesta_Exploratoria/      Primera entrega (encuesta exploratoria)
-│   ├── Data/          datos_encuesta_sucia.csv · datos_encuesta.csv
+│   ├── Data/          datos_encuesta_sucia.csv - datos_encuesta.csv
 │   ├── Encuesta/      Encuesta_A2_Confianza_Institucional.md
 │   ├── Shiny_App/     app.R (tablero interactivo)
 │   └── Reporte/       Informe_Entrega_1_Econometría.pdf
 └── 02_Entrega_Final_Experimento/            Entrega final (experimento)
-    ├── Data/          Base_Datos_Entrega_Final.xlsx · .csv · datos_analisis.csv
+    ├── Data/          Base_Datos_Entrega_Final.xlsx - .csv - datos_analisis.csv
     ├── Encuesta/      Cuestionario_Experimento.md
-    ├── Codigo/        Analisis_Donaciones_Grupo_A2.Rmd · .html
+    ├── Codigo/        Analisis_Donaciones_Grupo_A2.Rmd - .html
     ├── Graficas/      7 gráficas en PNG (300 dpi)
-    └── Documentos/    Póster · Blog · Informe
+    └── Documentos/    Póster - Blog - Informe
 ```
 
 ## Cómo reproducir los resultados

@@ -1,7 +1,7 @@
 # Cuestionario — Experimento final
 
-**Proyecto:** Confianza institucional y donaciones · Econometría Básica 2026-II · Grupo A2
-**Herramienta:** Google Forms · **Aplicación:** 27 de octubre – 12 de noviembre de 2026 · **Respuestas válidas:** 153
+**Proyecto:** Confianza institucional y donaciones - Econometría Básica 2026-II - Grupo A2
+**Herramienta:** Google Forms - **Aplicación:** 27 de octubre – 12 de noviembre de 2026 - **Respuestas válidas:** 153
 
 Las preguntas de este documento son las del formulario, copiadas textualmente de los encabezados de la base de datos (`Data/Base_Datos_Entrega_Final.xlsx`). Las opciones de respuesta son las que aparecen en los datos.
 
